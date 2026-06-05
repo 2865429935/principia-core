@@ -53,3 +53,23 @@ We require two distinct numerical integration algorithms to advance the system s
 - ZERO Black Box. Everything builds upon `Vector2D` and `Particle`.
 - Create a test scenario: A 2-body circular orbit simulation running for 1000 steps.
 - **Crucial Assertion**: Write a test that mathematically proves the difference between the two integrators. Explicit Euler should cause the orbit to diverge (distance between bodies increases significantly), while Symplectic Euler should maintain a stable periodic orbit boundaries.
+
+## Specification: Level 3 - Second-Order Symplectic Integrator & Invariant Monitor
+
+### 1. Mathematical Definitions
+- **Velocity Verlet (Strang Splitting)**: A second-order symplectic integrator $\mathcal{O}(dt^2)$. It achieves time-reversibility by evaluating the velocity at half-steps.
+  - v_half = v_old + 0.5 * a_old * dt
+  - r_new = r_old + v_half * dt
+  - compute new accelerations (a_new) from r_new
+  - v_new = v_half + 0.5 * a_new * dt
+- **Mechanical Energy**: E = Kinetic (0.5 * m * |v|^2) + Potential Energy.
+  - Gravitational Potential Energy U = - G * m1 * m2 / |r1 - r2|
+
+### 2. Core Architecture
+- Implement `VelocityVerletIntegrator` conforming to the `Integrator` protocol. **Crucial**: It must only call `compute_accelerations` ONCE per full time step loop to remain computationally efficient (reuse a_new as a_old in the next step).
+- Implement an `EnergyMonitor` module that calculates the total Hamiltonian (E = T + U) of a given system of particles.
+
+### 3. Strict Constraints & Testing
+- ZERO Black Box. Everything builds upon previous levels.
+- Write a highly eccentric 2-body orbit test (where velocity changes rapidly near periapsis) running for 2000 steps.
+- **Assertion**: Use the `EnergyMonitor` to quantitatively prove that the energy drift in `VelocityVerletIntegrator` is orders of magnitude smaller than in `SymplecticEulerIntegrator` over the same duration.
