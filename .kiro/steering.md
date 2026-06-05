@@ -73,3 +73,15 @@ We require two distinct numerical integration algorithms to advance the system s
 - ZERO Black Box. Everything builds upon previous levels.
 - Write a highly eccentric 2-body orbit test (where velocity changes rapidly near periapsis) running for 2000 steps.
 - **Assertion**: Use the `EnergyMonitor` to quantitatively prove that the energy drift in `VelocityVerletIntegrator` is orders of magnitude smaller than in `SymplecticEulerIntegrator` over the same duration.
+
+## Specification: Level 4 - Continuous Integration (CI/CD)
+
+### 1. Goal
+Establish a robust, automated testing infrastructure to qualify this repository as a production-grade open-source project. 
+
+### 2. Core Architecture
+- Create a GitHub Actions workflow file `.github/workflows/python-tests.yml`.
+- The workflow must trigger on `push` to the `main` branch and on any `pull_request`.
+- It should set up a Python 3.9 environment.
+- It must run all standard library `unittest` cases (currently 99 tests) automatically.
+- It must enforce a strict zero-dependency policy: do not `pip install` any external math libraries before running the tests.
