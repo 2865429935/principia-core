@@ -1,0 +1,55 @@
+name: Python Tests
+
+# Run the full standard-library unittest suite on every push to main and on
+# every pull request, so the engine stays green at all times.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    name: unittest (Python 3.9)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      # ZERO Black Box policy: principia-core depends on nothing but the Python
+      # standard library. We deliberately do NOT run `pip install` for any
+      # external package, and this step fails the build if a forbidden
+      # third-party (math) library somehow becomes importable.
+      - name: Enforce zero-dependency policy
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import sys
+
+          forbidden = ["numpy", "scipy", "pandas", "sympy", "pytest"]
+          present = [name for name in forbidden
+                     if importlib.util.find_spec(name) is not None]
+          if present:
+              print("Zero-dependency policy violated; forbidden libraries "
+                    f"are importable: {present}")
+              sys.exit(1)
+          print("Zero-dependency policy OK: no external math/test libraries "
+                "are installed.")
+          PY
+
+      - name: Run unittest suite
+        # Pure standard-library test runner; no third-party test framework.
+        run: python -m unittest discover -s tests -p "test_*.py" -v
