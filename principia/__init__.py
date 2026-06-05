@@ -8,13 +8,23 @@
 * Level 2 (Numerical Integrators): the :class:`~principia.integrators.Integrator`
   base class with :class:`~principia.integrators.ExplicitEulerIntegrator` and
   :class:`~principia.integrators.SymplecticEulerIntegrator`.
+* Level 3 (Second-Order Integrator & Invariant Monitor): the
+  :class:`~principia.integrators.VelocityVerletIntegrator` and the
+  :class:`~principia.energy.EnergyMonitor`.
 """
 
+from principia.energy import (
+    EnergyMonitor,
+    kinetic_energy,
+    potential_energy,
+    total_energy,
+)
 from principia.gravity import GravityForce, compute_accelerations
 from principia.integrators import (
     ExplicitEulerIntegrator,
     Integrator,
     SymplecticEulerIntegrator,
+    VelocityVerletIntegrator,
 )
 from principia.particle import Particle
 from principia.vector2d import Vector2D
@@ -27,4 +37,9 @@ __all__ = [
     "Integrator",
     "ExplicitEulerIntegrator",
     "SymplecticEulerIntegrator",
+    "VelocityVerletIntegrator",
+    "EnergyMonitor",
+    "kinetic_energy",
+    "potential_energy",
+    "total_energy",
 ]
